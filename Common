@@ -1,0 +1,36 @@
+//SocketClient.h - Socket客户端封装 - 需要其他成员实现
+#ifndef SOCKETCLIENT_H
+#define SOCKETCLIENT_H
+
+#include <QObject>
+#include <QJsonObject>
+
+class SocketClient : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit SocketClient(QObject *parent = nullptr);
+    ~SocketClient();
+
+    bool connectToServer(const QString &host, quint16 port);
+    void disconnectFromServer();
+    bool isConnected() const;
+
+    bool sendData(const QJsonObject &data);
+
+signals:
+    void connected();
+    void disconnected();
+    void dataReceived(const QJsonObject &data);
+    void errorOccurred(const QString &error);
+
+private:
+    // 实现细节由其他成员完成
+    class Private;
+    Private *d;
+};
+
+#endif // SOCKETCLIENT_H
+//SocketClient.cpp - Socket客户端实现
+//protocal.h - 通信协议定义

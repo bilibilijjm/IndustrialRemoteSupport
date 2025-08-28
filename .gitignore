@@ -1,0 +1,113 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+*~
+*.autosave
+*.a
+*.core
+*.moc
+*.o
+*.obj
+*.orig
+*.rej
+*.so
+*.so.*
+*_pch.h.cpp
+*_resource.rc
+*.qm
+.#*
+*.*#
+core
+!core/
+tags
+.DS_Store
+.directory
+*.debug
+Makefile*
+*.prl
+*.app
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+Thumbs.db
+*.res
+*.rc
+/.qmake.cache
+/.qmake.stash
+
+# qtcreator generated files
+*.pro.user*
+
+# xemacs temporary files
+*.flc
+
+# Vim temporary files
+.*.swp
+
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
+
+# MinGW generated files
+*.Debug
+*.Release
+
+# Python byte code
+*.pyc
+
+# Binaries
+# --------
+*.dll
+*.exe
+
+# 忽略系统文件
+.DS_Store
+Thumbs.db
+
+# 忽略编译器/IDE文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 忽略Qt编译生成的文件
+build-*/
+*.pro.user
+*.autosave
+
+# 忽略编译产物
+*.o
+*.so
+*.a
+*.dll
+*.exe
+
+# 忽略调试文件
+core
+core.*
+
+# 忽略录制文件
+recordings/*.mp4
+
+# 忽略数据库文件
+*.db
+*.sqlite
+
+# 忽略日志文件
+*.log
+logs/
+
+# 忽略临时文件
+*.tmp
+*.temp

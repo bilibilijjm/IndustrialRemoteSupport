@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>background.png</file>
+        <file>logo.png</file>
+        <file>video-on.png</file>
+        <file>video-off.png</file>
+        <file>audio-on.png</file>
+        <file>audio-off.jpg</file>
+    </qresource>
+    <qresource prefix="/icons"/>
+    <qresource prefix="/fonts">
+        <file>rotobo-mono.ttf</file>
+    </qresource>
+    <qresource prefix="/styles">
+        <file>style.qss</file>
+    </qresource>
+</RCC>
