@@ -45,7 +45,7 @@ public:
         }//工单表
         if(!query.exec(
             "CREATE TABLE IF NOT EXISTS messages ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
             "user TEXT,"
             "message TEXT,"
@@ -56,8 +56,8 @@ public:
             return false;
         }//信息表
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS TABLE control"
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "CREATE TABLE IF NOT EXISTS control"
+            "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
             "message TEXT,"
             "command TEXT,"
@@ -68,8 +68,8 @@ public:
             return false;
         }//控制记录表
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS TABLE video"
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "CREATE TABLE IF NOT EXISTS video"
+            "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
             "file_location TEXT UNIQUE NOT NULL"
             "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
@@ -78,8 +78,8 @@ public:
             return false;
         }//视频记录
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS TABLE voice_call"
-            "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            "CREATE TABLE IF NOT EXISTS voice_call"
+            "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
             "file_location TEXT UNIQUE NOT NULL"
             "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
