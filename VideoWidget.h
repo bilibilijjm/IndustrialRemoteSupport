@@ -2,70 +2,20 @@
 #define VIDEOWIDGET_H
 
 #include <QWidget>
-#include <QCamera>
-#include <QCameraViewfinder>
-#include <QAudioInput>
-#include <QMediaRecorder>
-#include <QVideoProbe>
-#include <QPushButton>
-#include <QLabel>
-#include <QUrl>
-#include <QDir>
+class QWebEngineView;
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class VideoWidget; }
-QT_END_NAMESPACE
-
-class VideoWidget : public QWidget
-{
+class VideoWidget : public QWidget {
     Q_OBJECT
-
 public:
-    explicit VideoWidget(QWidget *parent = nullptr);
-    ~VideoWidget();
-    QString getCurrentRecordingFile() const;
-
-signals:
-    void videoStateChanged(bool started);
-    void audioStateChanged(bool started);
-    void screenShareStateChanged(bool started);
-    void recordingStateChanged(bool started);
-
-public slots:
-    void startVideo();
-    void stopVideo();
-    void startAudio();
-    void stopAudio();
-    void startScreenShare();
-    void stopScreenShare();
-    void startRecording();
-    void stopRecording();
-    void toggleRecording();
-
-private slots:
-    void updateCameraState(QCamera::State state);
-    void updateRecorderState(QMediaRecorder::State state);
-    void displayRecorderError();
-    void displayCameraError();
+    explicit VideoWidget(QWidget *parent=nullptr);
+    // roomId: 房间号（整数的字符串，如 "1234"）
+    // display: 昵称
+    // janusUrl: 例如 "ws://127.0.0.1:8188" 或 "https://janus.conf.meetecho.com/janus"
+    void startCall(const QString& roomId, const QString& display, const QString& janusUrl);
 
 private:
-    void setupUI();
-    void setupCamera();
-    void cleanupCamera();
-
-private:
-    Ui::VideoWidget *ui;
-    QCamera *camera;
-    QCameraViewfinder *cameraView;
-    QMediaRecorder *mediaRecorder;
-    QAudioInput *audioInput;
-    QVideoProbe *videoProbe;
-    QString currentRecordingFile;
-
-    bool isVideoActive;
-    bool isAudioActive;
-    bool isRecording;
-    bool isScreenSharing;
+    QWebEngineView *view_ = nullptr;
+    void grantMediaPermissions();
 };
 
 #endif // VIDEOWIDGET_H

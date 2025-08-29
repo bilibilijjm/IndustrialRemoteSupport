@@ -1,116 +1,103 @@
-//Socket客户端实现
-//SocketClient.cpp - 需要其他成员实现
-//临时实现
 #include "SocketClient.h"
+#include "protocal.h"
+
 #include <QJsonDocument>
-#include <QHostAddress>
-#include <QDebug>
 #include <QDataStream>
+#include <QAbstractSocket>
+#include <QDebug>
 
-SocketClient::SocketClient(QObject *parent)
-    : QObject(parent), socket(new QTcpSocket(this))
+SocketClient::SocketClient(QObject* parent)
+    : QObject(parent),
+      socket(new QTcpSocket(this))
 {
-    connect(socket, &QTcpSocket::readyRead, this, &SocketClient::onReadyRead);
-    connect(socket, &QTcpSocket::connected, this, &SocketClient::onConnected);
+    connect(socket, &QTcpSocket::readyRead,    this, &SocketClient::onReadyRead);
+    connect(socket, &QTcpSocket::connected,    this, &SocketClient::onConnected);
     connect(socket, &QTcpSocket::disconnected, this, &SocketClient::onDisconnected);
-    connect(socket, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),
-            this, &SocketClient::onError);
+
+    // Qt 5.12 用旧信号 error(...)
+    connect(socket,
+            static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+            this,
+            &SocketClient::onError);
 }
 
-SocketClient::~SocketClient()
+void SocketClient::connectTo(const QString& host, quint16 port)
 {
-    disconnectFromServer();
-    socket->deleteLater();  // 确保socket被正确清理
-    qDebug() << "SocketClient destructor called";
-}
-
-bool SocketClient::connectToServer(const QString &host, quint16 port)
-{
-    if (socket->state() == QAbstractSocket::ConnectedState) {
-        return true;
-    }
-
     socket->connectToHost(host, port);
-    return socket->waitForConnected(3000);
 }
 
-void SocketClient::disconnectFromServer()
+// 统一的可靠发送 JSON（4字节大端长度 + JSON 载荷）
+bool SocketClient::sendJson(const QJsonObject& obj)
 {
-    if (socket->state() != QAbstractSocket::UnconnectedState) {
-        socket->disconnectFromHost();
-        if (socket->state() != QAbstractSocket::UnconnectedState) {
-            socket->waitForDisconnected(1000);
-        }
-    }
-}
-
-bool SocketClient::isConnected() const
-{
-    return socket->state() == QAbstractSocket::ConnectedState;
-}
-
-bool SocketClient::sendData(const QJsonObject &data)
-{
-    if (!isConnected()) {
+    if (!socket || socket->state() != QAbstractSocket::ConnectedState) {
         emit errorOccurred(tr("未连接到服务器"));
         return false;
     }
 
-    QJsonDocument doc(data);
-    QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+    const QByteArray json = QJsonDocument(obj).toJson(QJsonDocument::Compact);
+    if (static_cast<quint32>(json.size()) > kMaxFrame) {
+        emit errorOccurred(tr("JSON 消息过大（%1 字节）").arg(json.size()));
+        return false;
+    }
 
-    // 添加数据长度前缀
-    QByteArray packet;
-    QDataStream stream(&packet, QIODevice::WriteOnly);
-    stream << quint32(jsonData.size());
-    packet.append(jsonData);
-
-    qint64 bytesWritten = socket->write(packet);
-    return bytesWritten == packet.size();
+    const QByteArray frame = Proto::pack(obj);        // [len-be32] + json
+    const qint64 n = socket->write(frame);
+    if (n != frame.size()) {
+        emit errorOccurred(tr("发送失败：%1").arg(socket->errorString()));
+        return false;
+    }
+    return true;
 }
 
+void SocketClient::join(const QString& user, const QString& room)
+{
+    user_ = user;
+    room_ = room;
+
+    QJsonObject obj{
+        {"type", "join"},
+        {"user", user_},
+        {"room", room_}
+    };
+    (void)sendJson(obj);
+}
+
+void SocketClient::sendChat(const QString& text, const QString& toUser)
+{
+    QJsonObject obj{
+        {"type", "chat"},
+        {"text", text}
+    };
+    if (!toUser.isEmpty()) obj.insert("to", toUser);
+
+    (void)sendJson(obj);
+}
+
+// 读取并拆包（支持一批多帧）
 void SocketClient::onReadyRead()
 {
-    while (socket->bytesAvailable() > 0) {
-        static quint32 packetSize = 0;
+    recvBuf.append(socket->readAll());
 
-        if (packetSize == 0) {
-            if (socket->bytesAvailable() < sizeof(quint32)) {
-                return;
-            }
-            QDataStream stream(socket);
-            stream >> packetSize;
-        }
-
-        if (socket->bytesAvailable() < packetSize) {
-            return;
-        }
-
-        QByteArray jsonData = socket->read(packetSize);
-        packetSize = 0;
-
-        QJsonDocument doc = QJsonDocument::fromJson(jsonData);
-        if (doc.isObject()) {
-            emit dataReceived(doc.object());
-        }
+    QJsonObject one;
+    while (Proto::tryUnpack(recvBuf, &one)) {
+        emit messageArrived(one);
     }
 }
 
 void SocketClient::onConnected()
 {
     emit connected();
-    qDebug() << "Connected to server";
+    qDebug() << "Socket connected";
 }
 
 void SocketClient::onDisconnected()
 {
     emit disconnected();
-    qDebug() << "Disconnected from server";
+    qDebug() << "Socket disconnected";
 }
 
-void SocketClient::onError(QAbstractSocket::SocketError error)
+void SocketClient::onError(QAbstractSocket::SocketError)
 {
-    QString errorMsg = socket->errorString();
-    emit errorOccurred(errorMsg);
-    qWarning() << "Socket error:" << errorMsg;
+    emit errorOccurred(socket->errorString());
+    qWarning() << "Socket error:" << socket->errorString();
 }

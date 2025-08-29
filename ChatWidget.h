@@ -2,46 +2,35 @@
 #define CHATWIDGET_H
 
 #include <QWidget>
-#include <QListWidget>
-#include <QTextEdit>
-#include <QPushButton>
-#include <QJsonObject>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ChatWidget; }
 QT_END_NAMESPACE
 
-class ChatWidget : public QWidget
-{
-    Q_OBJECT
+class UdpBus;  // 前向声明
 
+class ChatWidget : public QWidget {
+    Q_OBJECT
 public:
     explicit ChatWidget(QWidget *parent = nullptr);
     ~ChatWidget();
-    void addMessage(const QString &user, const QString &message, const QDateTime &time, bool isOwn);
 
-signals:
-    void messageSent(const QString &message);
-
-public slots:
-    void receiveMessage(const QString &user, const QString &message, const QDateTime &time);
-    void clearChat();
+    void setDisplayName(const QString& name) { displayName_ = name; }
 
 private slots:
-    void sendMessage();
+    void onSendClicked();
+    void clearChat();
     void updateSendButtonState();
 
 private:
-    void setupUI();
+    void addMessage(const QString& user, const QString& message,
+                    const QDateTime& time, bool isOwn);
 
 private:
-    Ui::ChatWidget *ui;
-    QListWidget *chatList;
-    QTextEdit *messageEdit;
-    QPushButton *sendButton;
-    QPushButton *clearButton;
-
-    QString currentUser;
+    Ui::ChatWidget *ui = nullptr;
+    UdpBus *bus_ = nullptr;
+    QString displayName_ = QStringLiteral("我"); // 本端显示名
 };
 
 #endif // CHATWIDGET_H
