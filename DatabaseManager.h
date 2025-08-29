@@ -36,7 +36,7 @@ public:
             "CREATE TABLE IF NOT EXISTS tickets("
             "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT UNIQUE NOT NULL,"
-            "titile TEXT,"
+            "title TEXT,"
             "description TEXT,"
             "create_time DATETIME"
         )){
@@ -56,33 +56,33 @@ public:
             return false;
         }//信息表
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS control"
+            "CREATE TABLE IF NOT EXISTS control("
             "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
             "message TEXT,"
             "command TEXT,"
             "time DATETIME,"
-            "FOREIGN KEY(ticket_id) REFERENCES tickets(ticket_id)"
+            "FOREIGN KEY(ticket_id) REFERENCES tickets(ticket_id))"
         )){
             qDebug()<<"ERROR: FAIL TO CREATE TABLE cotrol"<<query.lastError().text();
             return false;
         }//控制记录表
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS video"
+            "CREATE TABLE IF NOT EXISTS video("
             "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
-            "file_location TEXT UNIQUE NOT NULL"
-            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+            "file_location TEXT UNIQUE NOT NULL,"
+            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
         )){
             qDebug()<<"ERROR: FAIL TO CREATE TABLE video"<<query.lastError().text();
             return false;
         }//视频记录
         if(!query.exec(
-            "CREATE TABLE IF NOT EXISTS voice_call"
+            "CREATE TABLE IF NOT EXISTS voice_call("
             "id INTERGER PRIMARY KEY AUTOINCREMENT,"
             "ticket_id TEXT NOT NULL,"
-            "file_location TEXT UNIQUE NOT NULL"
-            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+            "file_location TEXT UNIQUE NOT NULL,"
+            "created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
         )){
             qDebug()<<"ERROR: FAIL TO CREATE TABLE voice_call"<<query.lastError().text();
             return false;
