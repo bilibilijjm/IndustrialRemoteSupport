@@ -23,16 +23,21 @@ SOURCES += \
     SocketClient.cpp \
     TicketManager.cpp \
     VideoWidget.cpp \
-    main.cpp
+    main.cpp\
+    DatabaseManager.cpp\
+    UtpBus.cpp
 
 HEADERS += \
     ChatWidget.h \
     DeviceDataWidget.h \
     LoginDialog.h \
     MainWindow.h \
-    SocketClient.h \
+    socketclient.h \
     TicketManager.h \
-    VideoWidget.h
+    VideoWidget.h\
+    DatabaseManager.h\
+    UtpBus.h\
+    protocal.h
 
 FORMS += \
     ChatWidget.ui \
@@ -40,7 +45,7 @@ FORMS += \
     LoginDialog.ui \
     MainWindow.ui \
     TicketManager.ui \
-    VideoWidget.ui
+    VideoWidget.ui\
 
 TRANSLATIONS += \
     FactoryClient_zh_CN.ts
