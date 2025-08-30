@@ -2,7 +2,7 @@
 
 DatabaseManager& DatabaseManager::instance(){
     static DatabaseManager instance;
-    reuturn instance;
+    return instance;
 }
 DatabaseManager:: DatabaseManager(QObject *parent)
     :QObject(parent){}
