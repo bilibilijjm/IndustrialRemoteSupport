@@ -6,10 +6,10 @@
 #include "VideoWidget.h"
 #include "DeviceDataWidget.h"
 #include "ChatWidget.h"
-#include "TicketManager1.h"
+#include "TicketManager.h"
 
 // 由其他成员开发的Socket客户端，此处需要替换为实际头文件
-#include "SocketClient.h"
+#include "socketclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

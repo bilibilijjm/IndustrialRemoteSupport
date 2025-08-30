@@ -1,4 +1,4 @@
-#include "SocketClient.h"
+#include "socketclient.h"
 #include "protocal.h"
 
 #include <QJsonDocument>
