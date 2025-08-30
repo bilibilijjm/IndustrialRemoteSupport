@@ -5,7 +5,6 @@
 #include <QHeaderView>
 #include <QDateTime>
 #include <QMessageBox>
-
 TicketManager::TicketManager(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::TicketManager)
@@ -75,19 +74,20 @@ void TicketManager::loadTickets()
     // 需要其他成员实现从数据库加载工单列表
     // 这里只是示例数据
     ticketTree->clear();
-
-    QTreeWidgetItem *item1 = new QTreeWidgetItem(ticketTree);
-    item1->setText(0, "T20231201120000");
-    item1->setText(1, tr("设备压力异常"));
-    item1->setText(2, tr("进行中"));
-    item1->setText(3, "2023-12-01 12:00:00");
-
-    QTreeWidgetItem *item2 = new QTreeWidgetItem(ticketTree);
-    item2->setText(0, "T20231201093000");
-    item2->setText(1, tr("温度传感器故障"));
-    item2->setText(2, tr("已完成"));
-    item2->setText(3, "2023-12-01 09:30:00");
-}
+    QTreeWidgetItem *item =new QTreeWidgetItem(ticketTree);
+    QSqlQuery query(DatabaseManager::instance().db());
+    if (!query.exec("SELECT ticket_id, title, status, create_time FROM tickets ORDER BY create_time DESC")){
+        qDebug()<<"error: can't load tickets info -"<<query.lastError().text();
+        return;
+    }
+    while (query.next(){
+        QTreeWidgetItem *item = new QTreeWidgetItem(ticketTree);
+        item ->setText(0,query.value(0).toString());//ticket_id
+        item ->setText(1,query.value(1).toString());//ticket_title
+        item ->setText(2,query.value(2).toString());//status
+        item ->setText(3,query.value(3).toString());//create_time
+    })
+}   
 
 void TicketManager::onCreateNewTicket()
 {
@@ -96,7 +96,13 @@ void TicketManager::onCreateNewTicket()
         QMessageBox::warning(this, tr("错误"), tr("请输入工单标题"));
         return;
     }
-
+    QSqlQuery check(DatabaseManager::instance().db());
+    check.prepare("SELECT COUNT(*) FROM tickets WHERE title =?");
+    check.addBindValue(title);
+    check.exec();
+    if(check.next() && check.value(0).toInt()>0){
+        QMessageBox::warning (this, tr("提示"),tr("已存在相同标题的工单"));
+    }
     QString ticketId = "T" + QDateTime::currentDateTime().toString("yyyyMMddHHmmss");
     saveTicket(ticketId, title);
 
@@ -110,7 +116,7 @@ void TicketManager::onCreateNewTicket()
 void TicketManager::onJoinSelectedTicket()
 {
     if (ticketTree->currentItem()) {
-        emit joinTicket();
+        emit joinTicket(getSelectedTicketId());
     }
 }
 
@@ -151,11 +157,19 @@ void TicketManager::updateTicketStatus(const QString &ticketId, const QString &s
             break;
         }
     }
+    QSqlQuery query(DatabaseManager::instance().db());
+    query.prepare("UPDATE tickets SET status = ? WHERE ticket_d= ? ");
+    query.addBindValue(status);
+    query.addBindValue(ticketId);
+    if(!query.exec()){
+        qDebug()<<"error: can't update ticket's status - "<<query.lastError().text();
+    }
 }
 
 void TicketManager::saveTicket(const QString &ticketId, const QString &title)
 {
-    // 需要其他成员实现保存工单到数据库
-    Q_UNUSED(ticketId);
-    Q_UNUSED(title);
+    QDateTime now =QDateTime::currentDateTime();
+    if(!DatabaseManager::instance()).saveTicket(ticketId, title, "", now){
+        QMessageBox::critical(this,tr("错误"),tr("保存工单失败"));
+    }
 }

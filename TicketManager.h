@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QJsonObject>
 #include <QLabel>
+#include "DatabaseManager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class TicketManager; }
